@@ -1,19 +1,27 @@
 #!/bin/sh
 
+# Usage: code-htmlize <language>
+#
+# Uses vim to produce html markup of colorized source.
+#
+# Uses perl to do some horrible chopping to make it convenient for me.
+
 CODELANG=$1
 
 vi - \
   "+set ft=$CODELANG" \
   '+let g:html_use_css = 0' \
   +TOhtml \
-  '+w! /tmp/out.html' \
+  '+w! /tmp/code-htmlize-out.html' \
   '+%s/\&nbsp;/ /g' \
   '+qall!' \
   >/dev/null 2>&1
 
-cat /tmp/out.html \
+cat /tmp/code-htmlize-out.html \
   | perl -ne 'print if /<body/ .. /<\/body>/' \
   | tail -n +2 \
   | head -n -1 \
   | perl -pe 's/&nbsp;/ /g; s/<br>//; s/<font/<span/g; s/<\/font/<\/span/g'
+
+rm /tmp/code-htmlize-out.html
 
